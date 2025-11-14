@@ -4,7 +4,7 @@ A modern web application built with Next.js 14 and TypeScript that uses AI to id
 
 ## Features
 
-- **AI-Powered Card Recognition**: Uses GPT-4 Vision to automatically identify Pokemon cards from photos
+- **AI-Powered Card Recognition**: Uses Google Gemini Vision to automatically identify Pokemon cards from photos
 - **Real-Time Pricing**: Fetches current market prices from TCGPlayer API
 - **Condition-Based Valuation**: Adjusts prices based on card condition (Near Mint, Lightly Played, etc.)
 - **Scan History**: Stores scan history locally in the browser
@@ -18,7 +18,7 @@ A modern web application built with Next.js 14 and TypeScript that uses AI to id
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **UI Components**: Shadcn/ui
-- **AI**: OpenAI GPT-4 Vision API
+- **AI**: Google Gemini 1.5 Flash Vision API
 - **Pricing**: TCGPlayer API (with fallback estimation)
 - **Storage**: Browser localStorage
 
@@ -26,7 +26,7 @@ A modern web application built with Next.js 14 and TypeScript that uses AI to id
 
 - Node.js 18+
 - npm or yarn
-- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+- Google Gemini API key ([Get a free one here](https://aistudio.google.com/app/apikey))
 - (Optional) TCGPlayer API key for real pricing data
 
 ## Getting Started
@@ -55,7 +55,7 @@ cp .env.example .env.local
 Edit `.env.local` and add your API keys:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 TCGPLAYER_API_KEY=your_tcgplayer_api_key_here  # Optional
 ```
 
@@ -70,7 +70,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ## Usage
 
 1. **Upload or Capture**: Click "Take Photo" to use your camera, or "Upload Image" to select a file
-2. **AI Recognition**: The app automatically identifies the card using GPT-4 Vision
+2. **AI Recognition**: The app automatically identifies the card using Google Gemini Vision
 3. **Select Condition**: Choose the card's condition from the dropdown
 4. **Get Price**: Click "Get Price Estimate" to fetch current market value
 5. **View History**: Scroll down to see your scan history
@@ -88,7 +88,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### POST /api/recognize
 
-Identifies a Pokemon card from an image using GPT-4 Vision.
+Identifies a Pokemon card from an image using Google Gemini Vision.
 
 **Request Body:**
 ```json
@@ -147,7 +147,7 @@ Fetches pricing data for a Pokemon card.
 pokemon-card-scanner-ts/
 ├── app/
 │   ├── api/
-│   │   ├── recognize/      # GPT-4 Vision card recognition
+│   │   ├── recognize/      # Gemini Vision card recognition
 │   │   └── pricing/        # TCGPlayer pricing integration
 │   ├── globals.css         # Global styles and theme
 │   └── page.tsx            # Main application page
@@ -187,7 +187,7 @@ This app can be deployed to any platform that supports Next.js:
 ### Environment Variables for Production
 
 Make sure to set these in your deployment platform:
-- `OPENAI_API_KEY` (required)
+- `GEMINI_API_KEY` (required)
 - `TCGPLAYER_API_KEY` (optional)
 
 ## Limitations & Future Improvements
@@ -224,7 +224,7 @@ For issues or questions:
 
 ## Acknowledgments
 
-- OpenAI for GPT-4 Vision API
+- Google for Gemini Vision API
 - TCGPlayer for pricing data
 - Shadcn/ui for beautiful components
 - Next.js team for an amazing framework

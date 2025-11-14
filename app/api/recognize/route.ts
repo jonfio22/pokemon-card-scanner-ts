@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,23 +12,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { success: false, error: "OpenAI API key not configured" },
+        { success: false, error: "Gemini API key not configured" },
         { status: 500 }
       );
     }
 
-    // Use GPT-4 Vision to identify the card
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Analyze this Pokemon card image and extract the following information in JSON format:
+    // Initialize Gemini
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    // Convert data URL to base64 and extract mime type
+    const base64Data = image.split(",")[1];
+    const mimeType = image.split(";")[0].split(":")[1];
+
+    // Use Gemini Vision to identify the card
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          data: base64Data,
+          mimeType: mimeType,
+        },
+      },
+      `Analyze this Pokemon card image and extract the following information in JSON format:
 {
   "name": "exact card name",
   "setName": "set name (e.g., Base Set, Jungle, etc.)",
@@ -42,20 +45,10 @@ export async function POST(request: NextRequest) {
 }
 
 Be as accurate as possible. If you cannot determine a field, use "Unknown". Only respond with valid JSON.`,
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: image,
-              },
-            },
-          ],
-        },
-      ],
-      max_tokens: 500,
-    });
+    ]);
 
-    const content = response.choices[0]?.message?.content;
+    const response = await result.response;
+    const content = response.text();
 
     if (!content) {
       return NextResponse.json(
@@ -64,8 +57,16 @@ Be as accurate as possible. If you cannot determine a field, use "Unknown". Only
       );
     }
 
-    // Parse the JSON response
-    const cardData = JSON.parse(content);
+    // Parse the JSON response (remove markdown code blocks if present)
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json(
+        { success: false, error: "Invalid response format from Gemini" },
+        { status: 500 }
+      );
+    }
+
+    const cardData = JSON.parse(jsonMatch[0]);
 
     return NextResponse.json({
       success: true,
@@ -76,7 +77,7 @@ Be as accurate as possible. If you cannot determine a field, use "Unknown". Only
         cardNumber: cardData.cardNumber || "Unknown",
         rarity: cardData.rarity,
       },
-      confidence: 0.9, // GPT-4 Vision is generally highly confident
+      confidence: 0.9, // Gemini Vision is generally highly confident
     });
   } catch (error) {
     console.error("Card recognition error:", error);
